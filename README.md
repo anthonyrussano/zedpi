@@ -33,7 +33,9 @@ sudo systemctl restart dhcpcd
 
 ## Host Computer Connection
 
-### Automatic Connection (One-Liner)
+### Linux/macOS
+
+#### Automatic Connection (One-Liner)
 
 Use this command to automatically detect the USB interface and configure networking:
 
@@ -47,7 +49,7 @@ Then connect via SSH:
 ssh anthony@10.55.0.2
 ```
 
-### Manual Connection
+#### Manual Connection
 
 1. **Find the USB interface:**
    ```bash
@@ -69,6 +71,71 @@ ssh anthony@10.55.0.2
    ```bash
    ssh anthony@10.55.0.2
    ```
+
+### Windows
+
+#### Prerequisites
+
+- Install an SSH client (OpenSSH is built into Windows 10/11, or use PuTTY)
+- Windows may require RNDIS drivers (usually automatic on Windows 10/11)
+
+#### Connection Steps
+
+1. **Plug in the Pi Zero 2W via USB**
+
+   Windows should detect it as a "USB Ethernet/RNDIS Gadget" and install drivers automatically.
+
+2. **Find the network adapter:**
+
+   Open PowerShell or Command Prompt as Administrator:
+   ```powershell
+   ipconfig /all
+   ```
+
+   Look for an adapter like:
+   - "USB Ethernet/RNDIS Gadget"
+   - "Remote NDIS based Internet Sharing Device"
+   - "Ethernet 2" or similar
+
+   Note the adapter name (e.g., "Ethernet 2").
+
+3. **Assign a static IP to the Windows adapter:**
+
+   **Option A: Using PowerShell (Administrator)**
+   ```powershell
+   netsh interface ip set address name="Ethernet 2" static 10.55.0.1 255.255.255.0
+   ```
+   Replace `"Ethernet 2"` with your actual adapter name.
+
+   **Option B: Using GUI**
+   - Open Network Connections (Control Panel → Network and Sharing Center → Change adapter settings)
+   - Right-click the USB Ethernet adapter → Properties
+   - Select "Internet Protocol Version 4 (TCP/IPv4)" → Properties
+   - Select "Use the following IP address:"
+     - IP address: `10.55.0.1`
+     - Subnet mask: `255.255.255.0`
+     - Default gateway: (leave blank)
+   - Click OK
+
+4. **Test connectivity:**
+   ```cmd
+   ping 10.55.0.2
+   ```
+
+5. **Connect via SSH:**
+   ```cmd
+   ssh anthony@10.55.0.2
+   ```
+
+#### Removing the static IP (after disconnecting)
+
+**Using PowerShell (Administrator):**
+```powershell
+netsh interface ip set address name="Ethernet 2" dhcp
+```
+
+**Using GUI:**
+- Set back to "Obtain an IP address automatically"
 
 ## Network Details
 
